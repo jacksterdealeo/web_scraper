@@ -21,8 +21,7 @@ func normalizeURL(urlString string) (string, error) {
 		result.WriteRune('@')
 	}
 
-	host_and_port := strings.Split(address.Host, ":")
-	result.WriteString(strings.ToLower(host_and_port[0]))
+	result.WriteString(address.Host)
 
 	if len(address.Path) > 0 {
 		var path []string

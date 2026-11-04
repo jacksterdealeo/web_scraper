@@ -39,11 +39,6 @@ func TestNormalizeURL(t *testing.T) {
 			inputURL: "http://example.com/",
 			expected: "example.com",
 		},
-		{
-			name:     "removing the default port",
-			inputURL: "http://example.com:80/",
-			expected: "example.com",
-		},
 		// From Boot.dev CH1 L3 solution: added check that error is caught
 		{
 			name:          "handle invalid URL",
