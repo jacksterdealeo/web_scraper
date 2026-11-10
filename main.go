@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"os"
+	"time"
 )
 
 func main() {
@@ -16,9 +16,23 @@ func main() {
 		os.Exit(1)
 	}
 	fmt.Printf("starting crawl of: %v\n", os.Args[1])
-	d, err := getHTML(os.Args[1])
-	if err != nil {
-		log.Println(err)
+	/*
+		d, err := getHTML(os.Args[1])
+		if err != nil {
+			log.Println(err)
+		}
+		fmt.Println(d)
+	*/
+
+	pages := make(map[string]int)
+	crawlPage(os.Args[1], os.Args[1], pages)
+	for page, count := range pages {
+		fmt.Println(count, page)
 	}
-	fmt.Println(d)
+
+}
+
+func composedTime() string {
+	n := time.Now()
+	return fmt.Sprintf("%vh:%vm:%vs", n.Hour(), n.Minute(), n.Second())
 }

@@ -22,12 +22,13 @@ func getHTML(rawURL string) (string, error) {
 	}
 	resp, err := client.Transport.RoundTrip(req)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("RoundTrip Failed. %w", err)
 	}
 	if resp.StatusCode >= 400 {
 		return "", fmt.Errorf("Error from http status code: %v", resp.Status)
 	}
-	if !strings.Contains(resp.Header.Get("Content-Type"), "text/html") {
+	contentType := resp.Header.Get("Content-Type")
+	if !strings.Contains(contentType, "text/html") {
 		return "", fmt.Errorf("Error. Wrong Content-Type. Expected 'text/html', Got '%v'", resp.Header.Get("Content-Type"))
 	}
 	body, err := io.ReadAll(resp.Body)
