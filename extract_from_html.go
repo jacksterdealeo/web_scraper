@@ -33,6 +33,7 @@ func getFirstParagraphFromHTML(html string) string {
 }
 
 // returns an un-normalized list of all the URLs found within the HTML
+// on error, returns an empty slice
 func getURLsFromHTML(htmlBody string, baseURL *url.URL) ([]string, error) {
 	doc, err := goquery.NewDocumentFromReader(strings.NewReader(htmlBody))
 	if err != nil {
@@ -55,10 +56,11 @@ func getURLsFromHTML(htmlBody string, baseURL *url.URL) ([]string, error) {
 			result = append(result, link.String())
 		}
 	})
-	return result, err
+	return result, nil
 }
 
 // returns an un-normalized list of all the image URLs found within the HTML
+// on error, returns an empty slice
 func getImagesFromHTML(htmlBody string, baseURL *url.URL) ([]string, error) {
 	doc, err := goquery.NewDocumentFromReader(strings.NewReader(htmlBody))
 	if err != nil {
@@ -81,5 +83,5 @@ func getImagesFromHTML(htmlBody string, baseURL *url.URL) ([]string, error) {
 			result = append(result, link.String())
 		}
 	})
-	return result, err
+	return result, nil
 }

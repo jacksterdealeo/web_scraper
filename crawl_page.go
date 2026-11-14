@@ -16,7 +16,7 @@ func crawlPageError(msg string, e error) {
 	}
 }
 
-func crawlPage(rawBaseURL, rawCurrentURL string, pages map[string]int) {
+func (cfg *config) crawlPage(rawBaseURL, rawCurrentURL string) {
 	rawBaseURLParsed, err := url.Parse(rawBaseURL)
 	if err != nil {
 		crawlPageError("", err)
@@ -36,25 +36,42 @@ func crawlPage(rawBaseURL, rawCurrentURL string, pages map[string]int) {
 		crawlPageError("", err)
 		return
 	}
-	_, exists := pages[rawCurrentURLNormalized]
-	if exists {
-		pages[rawCurrentURLNormalized] += 1
+
+	if _, exists := cfg.pages[rawCurrentURLNormalized]; exists {
 		return
-	} else {
-		pages[rawCurrentURLNormalized] = 1
 	}
-	page, err := getHTML(rawCurrentURL)
+	pageText, err := getHTML(rawCurrentURL)
 	if err != nil {
-		crawlPageError("getHTML Failed.", err)
+		crawlPageError("getHTML Failed. Will not bother recording details.", err)
 		return
 	}
 	fmt.Printf("%v -> Searching %v\n", composedTime(), rawCurrentURLNormalized)
-	URLs, err := getURLsFromHTML(page, rawCurrentURLParsed)
+	gottenURLs, err := getURLsFromHTML(pageText, rawCurrentURLParsed)
 	if err != nil {
 		crawlPageError("", err)
-		return
 	}
-	for _, url := range URLs {
-		crawlPage(rawBaseURL, url, pages)
+	gottenImages, err := getImagesFromHTML(pageText, rawCurrentURLParsed)
+	if err != nil {
+		crawlPageError("", err)
 	}
+
+	cfg.pages[rawCurrentURLNormalized] = PageData{
+		URL:            rawCurrentURLNormalized,
+		Heading:        getHeadingFromHTML(pageText),
+		FirstParagraph: getFirstParagraphFromHTML(pageText),
+		OutgoingLinks:  gottenURLs,
+		ImageURLs:      gottenImages,
+	}
+
+	// Search the sites found.
+	for _, url := range gottenURLs {
+		cfg.crawlPage(rawBaseURL, url)
+	}
+}
+
+func (cfg *config) addPageVisit(normalizedURL string) (shouldVisit bool) {
+	if _, exists := cfg.pages[normalizedURL]; exists {
+		return false
+	}
+	return true
 }
